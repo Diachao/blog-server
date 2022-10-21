@@ -1,0 +1,69 @@
+<!--
+ * @Author: your name
+ * @Date: 2022-03-31 14:28:44
+ * @LastEditTime: 2022-05-23 20:26:47
+ * @LastEditors: error: git config user.name && git config user.email & please set dead value or install git
+ * @Description: 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
+ * @FilePath: \作业\express\index.html
+-->
+<!DOCTYPE html>
+<html lang='zh-cn'>
+
+<head>
+  <meta charset='UTF-8'>
+  <meta http-equiv='X-UA-Compatible' content='IE=edge'>
+  <meta name='viewport' content='width=device-width, initial-scale=1.0'>
+  <title>Document</title>
+</head>
+
+<body>
+  <script src='./node_modules/axios/dist/axios.min.js'></script>
+  <script src='./node_modules/jsencrypt/bin/jsencrypt.min.js'></script>
+  <script>
+    //无用
+    const URL = 'http://127.0.0.1:3000'
+    const pubKeyName = "PUBLIC_KEY"
+    const tokenName = "TOKEN_KEY"
+    const storage = {
+      set(key, value) {
+        localStorage.setItem(key, JSON.stringify(value));
+      },
+      get(key) {
+        return localStorage.getItem(key);
+      },
+      remove(key) {
+        localStorage.removeItem(key);
+      }
+    }
+
+
+    async function getToken() {
+      let token = storage.get(tokenName);
+      if (!token || token === 'undefined') {
+        try {
+          let result = await axios.post(`${URL}/getToken`, {
+            username: "xiobao",
+            password: '123456'
+          }, {
+            withCredentials: true
+          })
+          token = result.data.data.token;
+
+          storage.set(tokenName, token);
+        } catch (err) {
+          console.error(err)
+        }
+      }
+      return token;
+    }
+    getToken().then(async (token) => {
+      let result = await axios.get(`${URL}/awater`, {
+        headers: {
+          "Authorization": `Bearer ${token}`
+        }
+      })
+    })
+  </script>
+</body>
+
+</html>
